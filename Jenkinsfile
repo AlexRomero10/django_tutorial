@@ -2,11 +2,8 @@ pipeline {
     agent {
         docker {
             image 'python:3'
+            args  '-u root:root'
         }
-    }
-    environment {
-        PIP_DISABLE_PIP_VERSION_CHECK = '1'
-        PYTHONUNBUFFERED = '1'
     }
     stages {
         stage('Preparar') {
