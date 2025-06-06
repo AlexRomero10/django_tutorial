@@ -2,7 +2,6 @@ pipeline {
     agent {
         docker {
             image 'python:3'
-            args '-u root:root'
         }
     }
     environment {
@@ -14,7 +13,7 @@ pipeline {
             steps {
                 sh 'apt-get update && apt-get install -y python3-venv'
                 sh 'python3 -m venv venv'
-                sh './venv/bin/pip install -r requirements.txt'
+                sh './venv/bin/python3 -m pip install -r requirements.txt'
             }
         }
         stage('Test') {
