@@ -1,7 +1,7 @@
 pipeline {
     environment {
-        IMAGEN = "aleromero10/jenkins"
-        LOGIN = 'USER_DOCKERHUB' // Jenkins credential ID con usuario y token de DockerHub
+        IMAGEN = "aleromero10/jenkins:latest"
+        LOGIN = 'USER_DOCKERHUB'
     }
 
     agent none
@@ -33,45 +33,41 @@ pipeline {
             }
         }
 
-        stage("Construccion y despliegue") {
-            agent { label 'master' } // Asegúrate que Jenkins master tenga Docker instalado
+        stage("Construccion") {
+            agent any
             stages {
-                stage('Clone en anfitrión') {
+                stage('CloneAnfitrion') {
                     steps {
                         git branch: 'master', url: 'https://github.com/AlexRomero10/django_tutorial.git'
                     }
                 }
-
-                stage('Construir imagen Docker') {
+                stage('BuildImage') {
                     steps {
                         script {
-                            dockerImage = docker.build("${IMAGEN}:latest")
+                            newApp = docker.build "${IMAGEN}:latest"
                         }
                     }
                 }
-
-                stage('Subir a DockerHub') {
+                stage('UploadImage') {
                     steps {
                         script {
                             docker.withRegistry('', LOGIN) {
-                                dockerImage.push()
+                                newApp.push()
                             }
                         }
                     }
                 }
-
-                stage('Eliminar imagen local') {
+                stage('RemoveImage') {
                     steps {
                         sh "docker rmi ${IMAGEN}:latest"
                     }
                 }
-
-                stage('Desplegar remotamente') {
+                stage('SSH') {
                     steps {
                         sshagent(credentials: ['SSH_ROOT']) {
                             sh '''
-                                ssh -o StrictHostKeyChecking=no root@217.160.22.156 "wget -O docker-compose.yaml https://raw.githubusercontent.com/AlexRomero10/django_tutorial/master/docker-compose.yaml"
-                                ssh -o StrictHostKeyChecking=no root@217.160.22.156 "docker-compose pull && docker-compose up -d --force-recreate"
+                                ssh -o StrictHostKeyChecking=no root@217.160.22.156 "wget https://raw.githubusercontent.com/AlexRomero10/django_tutorial/master/docker-compose.yaml -O docker-compose.yaml"
+                                ssh -o StrictHostKeyChecking=no root@217.160.22.156 "docker-compose up -d --force-recreate"
                             '''
                         }
                     }
@@ -83,8 +79,8 @@ pipeline {
     post {
         always {
             mail to: 'aletromp00@gmail.com',
-                 subject: "Estado del pipeline: ${currentBuild.fullDisplayName}",
-                 body: "El pipeline terminó con resultado: ${currentBuild.result}\n\nDetalles: ${env.BUILD_URL}"
+                 subject: "Status of pipeline: ${currentBuild.fullDisplayName}",
+                 body: "${env.BUILD_URL} has result ${currentBuild.result}"
         }
     }
 }
