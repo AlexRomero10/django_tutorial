@@ -1,7 +1,7 @@
 services:
   app:
     container_name: djangotutorial
-    image: aleromero10/jenkins
+    image: aleromero10/jenkins:latest
     restart: always
     environment:
       URL_BASE: ${URL_BASE}
