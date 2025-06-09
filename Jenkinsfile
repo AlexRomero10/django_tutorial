@@ -26,7 +26,7 @@ pipeline {
                 stage('Test')
                 {
                     steps {
-                        sh 'python3 manage.py test --settings=django_tutorial.settings_desarrollo'
+                        sh 'python3 manage.py test --settings=django_tutorial.settings'
                     }
                 }
             }
