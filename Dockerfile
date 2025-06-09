@@ -1,15 +1,17 @@
-FROM python:3
+FROM python:3.12.1-bookworm
 WORKDIR /usr/src/app
-RUN pip install django mysqlclient 
-ADD django_tutorial/ /usr/src/app
-ADD django_polls.sh /opt
-RUN mkdir static && chmod +x /opt/django_polls.sh
-ENV ALLOWED_HOSTS=*
-ENV HOST=mariadb
-ENV USUARIO=django
-ENV CONTRA=django
-ENV BASE_DATOS=django
-ENV DJANGO_SUPERUSER_PASSWORD=admin
-ENV DJANGO_SUPERUSER_USERNAME=admin
-ENV DJANGO_SUPERUSER_EMAIL=admin@example.org
-CMD ["/opt/django_polls.sh"]
+COPY ./ .
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh \
+&& pip install mysqlclient \
+&& pip install --no-cache-dir --break-system-packages -r requirements.txt
+EXPOSE 3000
+ENV URL_BASE=http://localhost
+ENV DB_HOST=localhost
+ENV DB_NAME=django
+ENV DB_USER=django
+ENV DB_PASS=django
+ENV DJANGO_MAIL=a@h.org
+ENV DJANGO_USER=admin
+ENV DJANGO_PASS=admin
+CMD /usr/local/bin/docker-entrypoint.sh

@@ -1,32 +1,32 @@
-version: '3.1'
 services:
-  django-tutorial:
-    container_name: django-tutorial2
+  app:
+    container_name: djangotutorial
     image: aleromero10/jenkins
     restart: always
     environment:
-      ALLOWED_HOSTS: "*"
-      HOST: db_mariadb
-      USUARIO: django
-      CONTRA: django
-      BASE_DATOS: django
-      DJANGO_SUPERUSER_PASSWORD: admin
-      DJANGO_SUPERUSER_USERNAME: admin
-      DJANGO_SUPERUSER_EMAIL: admin@example.org
+      URL_BASE: ${URL_BASE}
+      ALLOW_HOST: ${ALLOW_HOST}
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB: ${DB_NAME}
+      DJANGO_MAIL: ${DJANGO_MAIL}
+      DJANGO_USER: ${DJANGO_USER}
+      DJANGO_PASS: ${DJANGO_PASS}
     ports:
-      - 8086:8006
+      - ${PUERTO}:3000
     depends_on:
       - db
   db:
-    container_name: db_mariadb
-    image: mariadb
+    container_name: djangotutorial_db
+    image: mariadb:${VERSION_MARIADB}
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: root
-      MARIADB_DATABASE: django
-      MARIADB_USER: django
-      MARIADB_PASSWORD: django
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
-      - mariadb_data_django2:/var/lib/mysql
+      - djangotutorial_data:/var/lib/mysql
 volumes:
-    mariadb_data_django2:
+    djangotutorial_data:
